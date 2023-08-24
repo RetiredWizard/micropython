@@ -57,11 +57,12 @@ bool timer_ok_to_reset(int index, bool is_tc) {
 
 void reset_timers(void) {
     // Reset all timers
+    for (int i = 0; i < TCC_INST_NUM+TCC_INST_NUM; i++) {
+        never_reset_tc_or_tcc[i] = 0;
+    }
+
     Tcc *tccs[TCC_INST_NUM] = TCC_INSTS;
     for (int i = 0; i < TCC_INST_NUM; i++) {
-        if (!timer_ok_to_reset(i, false)) {
-            continue;
-        }
         // Disable the module before resetting it.
         if (tccs[i]->CTRLA.bit.ENABLE == 1) {
             tccs[i]->CTRLA.bit.ENABLE = 0;
@@ -74,9 +75,6 @@ void reset_timers(void) {
     }
     Tc *tcs[TC_INST_NUM] = TC_INSTS;
     for (int i = 0; i < TC_INST_NUM; i++) {
-        if (!timer_ok_to_reset(i, true)) {
-            continue;
-        }
         tcs[i]->COUNT16.CTRLA.bit.SWRST = 1;
         while (tcs[i]->COUNT16.CTRLA.bit.SWRST == 1) {
         }
